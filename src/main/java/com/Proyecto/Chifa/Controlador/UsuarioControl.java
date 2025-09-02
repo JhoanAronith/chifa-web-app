@@ -75,7 +75,7 @@ public class UsuarioControl {
             nuevoUsuario.setApellido(registroDto.getApellido());
             nuevoUsuario.setDni(registroDto.getDni());
             nuevoUsuario.setTelefono(registroDto.getTelefono());
-            nuevoUsuario.setDirecciónPredeterminada(registroDto.getDireccionPredeterminada());
+            nuevoUsuario.setDireccionPredeterminada(registroDto.getDireccionPredeterminada());
             nuevoUsuario.setEmail(registroDto.getEmail());
             nuevoUsuario.setRol(registroDto.getRol());
             nuevoUsuario.setContrasena(bCryptEncoder.encode(registroDto.getContrasena()));
@@ -129,7 +129,7 @@ public class UsuarioControl {
         Optional<Usuario> usuarioOpt = repo.findByDni(dni);
         if (usuarioOpt.isPresent()) {
             Usuario usuario = usuarioOpt.get();
-            usuario.setDirecciónPredeterminada(direccionPredeterminada);
+            usuario.setDireccionPredeterminada(direccionPredeterminada);
             repo.save(usuario);
             redirectAttributes.addFlashAttribute("mensaje", "Dirección actualizada correctamente");
         }
@@ -197,5 +197,54 @@ public class UsuarioControl {
         }
         return "redirect:/admin/pedidos?error";
     }
+    
+    //MOstrar el formulario de registro para admnistradores y la lista de todos
+    @GetMapping("/admin/administradores")
+    public String registrarAdministrador(Model model) {
+        List<Usuario> administradores = ser.listarPorRol("ADMIN");
+        model.addAttribute("administradores", administradores);
+        RegistroDto registroDto = new RegistroDto();
+        model.addAttribute(registroDto);
+        model.addAttribute("success", false);
+        return "admin/administradores";
+    }
+
+    
+    //Crear un nuevo administrador
+    @PostMapping("/admin/administradores")
+    public String nuevoAdministrador(Model model, @Valid @ModelAttribute RegistroDto registroDto, BindingResult result) {
+        if (!registroDto.getContrasena().equals(registroDto.getConfirmarContrasena())) {
+            result.addError(new FieldError("registroDto", "confirmarContrasena", "Las contraseñas no son iguales"));
+        }
+        Usuario usuario = repo.findByEmail(registroDto.getEmail());
+        if (usuario != null) {
+            result.addError(new FieldError("registroDto", "email", "El correo ya está en uso"));
+        }
+        if (result.hasErrors()) {
+            return "admin/administradores";
+        }
+        try {
+            var bCryptEncoder = new BCryptPasswordEncoder();
+            Usuario nuevoUsuario = new Usuario();
+            nuevoUsuario.setNombre(registroDto.getNombre());
+            nuevoUsuario.setApellido(registroDto.getApellido());
+            nuevoUsuario.setDni(registroDto.getDni());
+            nuevoUsuario.setTelefono(registroDto.getTelefono());
+            nuevoUsuario.setDireccionPredeterminada(registroDto.getDireccionPredeterminada());
+            nuevoUsuario.setEmail(registroDto.getEmail());
+            nuevoUsuario.setRol(registroDto.getRol());
+            nuevoUsuario.setContrasena(bCryptEncoder.encode(registroDto.getContrasena()));
+            repo.save(nuevoUsuario);
+            model.addAttribute("registroDto", new RegistroDto());
+            model.addAttribute("success", true);
+        } catch (Exception ex) {
+            result.addError(new FieldError("registroDto", "nombre", ex.getMessage()));
+        }
+        return "admin/administradores";
+    }
+    
+    
+    
+    
 
 }

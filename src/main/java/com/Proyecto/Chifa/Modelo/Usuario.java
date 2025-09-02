@@ -14,7 +14,7 @@ public class Usuario {
     @Column(unique = true)
     private String dni;
     private String telefono;
-    private String direcciónPredeterminada;
+    private String direccionPredeterminada;
     @Column(unique = true, nullable = false)
     private String email;
     private String contrasena;
@@ -63,12 +63,12 @@ public class Usuario {
         this.telefono = telefono;
     }
 
-    public String getDirecciónPredeterminada() {
-        return direcciónPredeterminada;
+    public String getDireccionPredeterminada() {
+        return direccionPredeterminada;
     }
 
-    public void setDirecciónPredeterminada(String direcciónPredeterminada) {
-        this.direcciónPredeterminada = direcciónPredeterminada;
+    public void setDireccionPredeterminada(String direccionPredeterminada) {
+        this.direccionPredeterminada = direccionPredeterminada;
     }
 
     public String getEmail() {
